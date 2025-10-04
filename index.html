@@ -220,14 +220,18 @@
             const projectedUsed = Math.round(daysElapsed * dailyMiles);
             document.getElementById('milesUsed').textContent = projectedUsed.toLocaleString();
 
-            // Actual miles used (with safe fallback to 0)
+            // Actual miles used: prefer current input value, fallback to stored
+            const input = document.getElementById('actualMiles');
             let actualUsed = 0;
-            const storedActual = safeGetItem('actualMiles');
-            if (storedActual !== null) {
-                actualUsed = parseFloat(storedActual) || 0;
+            if (input.value !== '') {
+                actualUsed = parseFloat(input.value) || 0;
+            } else {
+                const storedActual = safeGetItem('actualMiles');
+                if (storedActual !== null) {
+                    actualUsed = parseFloat(storedActual) || 0;
+                }
             }
             document.getElementById('actualMilesUsed').textContent = actualUsed.toLocaleString();
-            document.getElementById('actualMiles').value = actualUsed;
 
             // Miles difference: actual - projected (positive = over, negative = under)
             const diff = actualUsed - projectedUsed;
@@ -299,16 +303,19 @@
             const value = parseFloat(input.value);
             if (!isNaN(value) && value >= 0) {
                 safeSetItem('actualMiles', value);
-                calculateAndUpdate();
-            } else {
-                // Reset if invalid
-                input.value = '';
-                calculateAndUpdate();
             }
+            // Always update display with current input
+            calculateAndUpdate();
         }
 
         // Initial load
         calculateAndUpdate();
+
+        // Set initial input value after load
+        const initialActual = safeGetItem('actualMiles');
+        if (initialActual !== null) {
+            document.getElementById('actualMiles').value = initialActual;
+        }
 
         // Auto-update on inputs
         document.getElementById('startDateSelect').addEventListener('change', updateStartDate);
