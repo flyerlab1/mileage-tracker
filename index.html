@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a365d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Lease Mileage Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1a202c;
+            --text-muted: #4a5568;
+            --border: #e2e8f0;
+            --accent: #2b6cb0;
+            --accent-light: #ebf8ff;
+            --success: #276749;
+            --success-bg: #c6f6d5;
+            --warning: #c05621;
+            --warning-bg: #feebc8;
+            --pink: #9d174d;
+            --pink-bg: #ffd6e0;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-lg: 0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--text);
+            margin: 0 0 6px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin: 0 0 24px 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .input-section input[type="number"],
+        .input-section input[type="text"],
+        .input-section select {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px; /* prevents zoom on focus on iOS */
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--card);
+            color: var(--text);
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 48px;
+        }
+
+        .input-section select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        .input-section input:focus,
+        .input-section select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .input-section input[readonly] {
+            cursor: default;
+            background: var(--bg);
+        }
+
+        .input-section input[type="number"]::-webkit-inner-spin-button,
+        .input-section input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-section input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Key stats – most important */
+        .key-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 24px 0 16px 0;
+        }
+
+        .key-stat {
+            padding: 18px 14px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            min-height: 88px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .key-stat .stat-label {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .key-stat .stat-value {
+            font-size: 1.375rem;
+            font-weight: 700;
+        }
+
+        .key-stat.miles-diff {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .key-stat.miles-diff.under {
+            background: var(--pink-bg);
+            color: var(--pink);
+        }
+
+        .key-stat.miles-left {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        /* Rest of stats in a compact grid */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 0 0 20px 0;
+        }
+
+        .stat {
+            background: var(--bg);
+            padding: 12px 10px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stat.over {
+            background: var(--success-bg);
+        }
+
+        .stat.over .stat-value {
+            color: var(--success);
+        }
+
+        .stat.under {
+            background: var(--warning-bg);
+        }
+
+        .stat.under .stat-value {
+            color: var(--warning);
+        }
+
+        .note {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin: 0;
+            padding: 14px;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            line-height: 1.5;
+        }
+
+        .lease-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .lease-btn {
+            padding: 14px 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--card);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .lease-btn-icon {
+            width: 32px;
+            height: 32px;
+            margin: 0;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .lease-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .lease-btn.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .miles-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .miles-row .input-section {
+            margin-bottom: 0;
+        }
+
+        .lease-choice-label {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lease Mileage Tracker</h1>
+        <p class="subtitle">Set your lease details and enter actual miles to see how you’re doing.</p>
+
+        <div class="input-section">
+            <label class="lease-choice-label">Choose a lease</label>
+            <div class="lease-buttons">
+                <button type="button" class="lease-btn selected" id="leaseBtnAiden" data-date="2025-08-09" data-miles="15000">
+                    <img src="assets/tesla.svg" alt="" class="lease-btn-icon" aria-hidden="true">
+                    Aiden
+                </button>
+                <button type="button" class="lease-btn" id="leaseBtnNicole" data-date="2025-04-23" data-miles="10000">
+                    <img src="assets/infinti.svg" alt="" class="lease-btn-icon" aria-hidden="true">
+                    Nicole
+                </button>
+            </div>
+        </div>
+        <input type="hidden" id="startDateSelect" value="2025-08-09">
+        <input type="hidden" id="annualMilesSelect" value="15000">
+
+        <div class="miles-row">
+            <div class="input-section">
+                <label for="actualMiles">Miles driven</label>
+                <input type="number" id="actualMiles" min="0" step="0.1" placeholder="Enter current odometer" inputmode="decimal" />
+            </div>
+            <div class="input-section">
+                <label for="annualMilesAllotted">Annual allotment</label>
+                <input type="text" id="annualMilesAllotted" readonly value="—" />
+            </div>
+        </div>
+
+        <div class="key-stats">
+            <div class="key-stat miles-diff" id="milesDiffStat">
+                <div class="stat-label">Over / under</div>
+                <div class="stat-value" id="milesDiff">—</div>
+            </div>
+            <div class="key-stat miles-left">
+                <div class="stat-label">Miles remaining</div>
+                <div class="stat-value" id="milesRemaining">—</div>
+            </div>
+        </div>
+
+        <div class="section-label">Details</div>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">Lease start</div>
+                <div class="stat-value" id="leaseStart"></div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Today</div>
+                <div class="stat-value" id="currentDate"></div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Days elapsed</div>
+                <div class="stat-value" id="daysElapsed"></div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Annual miles</div>
+                <div class="stat-value" id="annualMilesDisplay"></div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Projected used</div>
+                <div class="stat-value" id="milesUsed"></div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Actual used</div>
+                <div class="stat-value" id="actualMilesUsed"></div>
+            </div>
+            <div class="stat" id="overageCostStat" style="display: none;">
+                <div class="stat-label">Overage cost</div>
+                <div class="stat-value" id="overageCost">0.00</div>
+            </div>
+        </div>
+
+        <div class="note" id="noteText">
+            Uses full daily allotment from lease start. Over/under = actual − projected. Positive = ahead, negative = behind. Updates as you type.
+        </div>
+    </div>
+
+    <script>
+        const DAYS_IN_YEAR = 365; // Non-leap year assumption for simplicity
+        const OVERAGE_RATE = 0.10; // $0.10 per mile
+
+        // Safe localStorage wrapper
+        function safeGetItem(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.warn('localStorage unavailable:', e);
+                return null;
+            }
+        }
+
+        function safeSetItem(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch (e) {
+                console.warn('localStorage unavailable:', e);
+                return false;
+            }
+        }
+
+        // Function to parse date string to local Date object
+        function parseLocalDate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        // Function to calculate and update display
+        function calculateAndUpdate() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString();
+
+            // Get selected start date (from hidden input, synced from lease button or storage)
+            let startDateStr = document.getElementById('startDateSelect').value;
+            const storedStart = safeGetItem('leaseStartDate');
+            if (storedStart !== null) {
+                startDateStr = storedStart;
+                document.getElementById('startDateSelect').value = storedStart;
+            }
+            // Annual miles tied to lease: Nicole = 10k, Aiden = 15k
+            let annualMiles = startDateStr === '2025-04-23' ? 10000 : 15000;
+            document.getElementById('annualMilesSelect').value = String(annualMiles);
+            safeSetItem('annualMiles', String(annualMiles));
+            // Update which lease button looks selected
+            document.querySelectorAll('.lease-btn').forEach(function(btn) {
+                btn.classList.toggle('selected', btn.getAttribute('data-date') === startDateStr);
+            });
+            const startDate = parseLocalDate(startDateStr);
+            document.getElementById('leaseStart').textContent = startDate.toLocaleDateString();
+
+            // Days elapsed: from start date to today, inclusive
+            const timeDiff = now - startDate;
+            const daysElapsed = Math.max(1, Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1);
+            document.getElementById('daysElapsed').textContent = daysElapsed;
+
+            document.getElementById('annualMilesDisplay').textContent = annualMiles.toLocaleString();
+            document.getElementById('annualMilesAllotted').value = annualMiles.toLocaleString();
+            const dailyMiles = annualMiles / DAYS_IN_YEAR;
+
+            // Projected miles used (assuming full daily usage)
+            const projectedUsed = Math.round(daysElapsed * dailyMiles);
+            document.getElementById('milesUsed').textContent = projectedUsed.toLocaleString();
+
+            // Actual miles used: prefer current input value, fallback to stored for this lease
+            const input = document.getElementById('actualMiles');
+            const storageKey = 'actualMiles_' + startDateStr;
+            let actualUsed = 0;
+            if (input.value !== '') {
+                actualUsed = parseFloat(input.value) || 0;
+            } else {
+                let storedActual = safeGetItem(storageKey);
+                if (storedActual === null && safeGetItem('actualMiles') !== null) {
+                    storedActual = safeGetItem('actualMiles');
+                    safeSetItem(storageKey, storedActual);
+                }
+                if (storedActual !== null) {
+                    actualUsed = parseFloat(storedActual) || 0;
+                }
+            }
+            document.getElementById('actualMilesUsed').textContent = actualUsed.toLocaleString();
+
+            // Miles difference: actual - projected (positive = over, negative = under)
+            const diff = actualUsed - projectedUsed;
+            const milesDiffElement = document.getElementById('milesDiff');
+            const milesDiffStat = document.getElementById('milesDiffStat');
+            milesDiffElement.textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString();
+            milesDiffStat.className = 'key-stat miles-diff' + (diff < 0 ? ' under' : '');
+
+            // Overage cost (only for April 23 start date)
+            const overageCostStat = document.getElementById('overageCostStat');
+            const overageCostElement = document.getElementById('overageCost');
+            if (startDateStr === '2025-04-23') {
+                const overageMiles = Math.max(0, diff);
+                const cost = overageMiles * OVERAGE_RATE;
+                overageCostElement.textContent = '$' + cost.toFixed(2);
+                overageCostStat.style.display = 'block';
+                overageCostStat.className = diff > 0 ? 'stat over' : 'stat';
+            } else {
+                overageCostStat.style.display = 'none';
+            }
+
+            // Miles remaining (based on projected)
+            const remaining = Math.max(0, annualMiles - projectedUsed);
+            document.getElementById('milesRemaining').textContent = remaining.toLocaleString();
+
+            // Update note with daily allotment
+            const dailyAllotment = Math.round(dailyMiles * 100) / 100;
+            document.getElementById('noteText').textContent = 'Daily allotment: ~' + dailyAllotment + ' mi. Over/under = actual − projected. Updates as you type.';
+        }
+
+        // When a lease button is clicked, set that lease and refresh
+        function selectLease(dateStr, milesStr) {
+            const prevDateStr = document.getElementById('startDateSelect').value;
+            const input = document.getElementById('actualMiles');
+            if (input.value !== '' && prevDateStr !== dateStr) {
+                safeSetItem('actualMiles_' + prevDateStr, input.value);
+            }
+            document.getElementById('startDateSelect').value = dateStr;
+            document.getElementById('annualMilesSelect').value = milesStr;
+            safeSetItem('leaseStartDate', dateStr);
+            safeSetItem('annualMiles', milesStr);
+            document.querySelectorAll('.lease-btn').forEach(function(btn) {
+                btn.classList.toggle('selected', btn.getAttribute('data-date') === dateStr);
+            });
+            const storedForLease = safeGetItem('actualMiles_' + dateStr);
+            input.value = storedForLease !== null ? storedForLease : '';
+            calculateAndUpdate();
+        }
+
+        // Function to update actual miles
+        function updateActualMiles() {
+            const input = document.getElementById('actualMiles');
+            const value = parseFloat(input.value);
+            const startDateStr = document.getElementById('startDateSelect').value;
+            if (!isNaN(value) && value >= 0) {
+                safeSetItem('actualMiles_' + startDateStr, String(value));
+            }
+            // Always update display with current input
+            calculateAndUpdate();
+        }
+
+        // Initial load
+        calculateAndUpdate();
+
+        // Initial load: show stored miles for the selected lease
+        const initialStartDate = document.getElementById('startDateSelect').value;
+        let initialActual = safeGetItem('actualMiles_' + initialStartDate);
+        if (initialActual === null && safeGetItem('actualMiles') !== null) {
+            initialActual = safeGetItem('actualMiles');
+            safeSetItem('actualMiles_' + initialStartDate, initialActual);
+        }
+        if (initialActual !== null) {
+            document.getElementById('actualMiles').value = initialActual;
+        }
+
+        // Auto-update on inputs
+        document.getElementById('leaseBtnAiden').addEventListener('click', function() {
+            selectLease('2025-08-09', '15000');
+        });
+        document.getElementById('leaseBtnNicole').addEventListener('click', function() {
+            selectLease('2025-04-23', '10000');
+        });
+        document.getElementById('actualMiles').addEventListener('input', updateActualMiles);
+    </script>
+</body>
+</html>
