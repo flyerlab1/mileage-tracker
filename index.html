@@ -143,7 +143,7 @@
         /* Key stats – most important */
         .key-stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 12px;
             margin: 24px 0 16px 0;
         }
@@ -172,14 +172,15 @@
         }
 
         .key-stat.miles-diff {
+            background: var(--pink-bg);
+            color: var(--pink);
+        }
+
+        .key-stat.miles-diff.under {
             background: var(--success-bg);
             color: var(--success);
         }
 
-        .key-stat.miles-diff.under {
-            background: var(--pink-bg);
-            color: var(--pink);
-        }
 
         .key-stat.miles-left {
             background: var(--accent-light);
@@ -340,10 +341,6 @@
                 <div class="stat-label">Over / under</div>
                 <div class="stat-value" id="milesDiff">—</div>
             </div>
-            <div class="key-stat miles-left">
-                <div class="stat-label">Miles remaining</div>
-                <div class="stat-value" id="milesRemaining">—</div>
-            </div>
         </div>
 
         <div class="section-label">Details</div>
@@ -365,7 +362,7 @@
                 <div class="stat-value" id="annualMilesDisplay"></div>
             </div>
             <div class="stat">
-                <div class="stat-label">Projected used</div>
+                <div class="stat-label">Miles allowed</div>
                 <div class="stat-value" id="milesUsed"></div>
             </div>
             <div class="stat">
@@ -487,11 +484,7 @@
                 overageCostStat.style.display = 'none';
             }
 
-            // Miles remaining (based on projected)
-            const remaining = Math.max(0, annualMiles - projectedUsed);
-            document.getElementById('milesRemaining').textContent = remaining.toLocaleString();
-
-            // Update note with daily allotment
+// Update note with daily allotment
             const dailyAllotment = Math.round(dailyMiles * 100) / 100;
             document.getElementById('noteText').textContent = 'Daily allotment: ~' + dailyAllotment + ' mi. Over/under = actual − projected. Updates as you type.';
         }
