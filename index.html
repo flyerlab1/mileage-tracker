@@ -318,6 +318,14 @@
         .lease-choice-label {
             text-align: center;
         }
+
+        .sync-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin: 8px 0 0;
+            min-height: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -355,6 +363,7 @@
                 <input type="text" id="annualMilesAllotted" readonly value="—" />
             </div>
         </div>
+        <p class="sync-note" id="syncNote"></p>
 
         <div class="key-stats">
             <div class="key-stat miles-diff" id="milesDiffStat">
@@ -407,6 +416,79 @@
 
         const DAYS_IN_YEAR = 365; // Non-leap year assumption for simplicity
         const OVERAGE_RATE = 0.10; // $0.10 per mile
+        const SHARED_MILES_URL = 'https://flyerlab-mileage-tracker-default-rtdb.firebaseio.com/miles.json';
+        let sharedSaveTimer = null;
+
+        function setSyncNote(text) {
+            const el = document.getElementById('syncNote');
+            if (el) el.textContent = text;
+        }
+
+        function collectMilesPayload() {
+            const payload = {};
+            document.querySelectorAll('.lease-btn').forEach(function(btn) {
+                const key = 'actualMiles_' + btn.getAttribute('data-date');
+                const value = safeGetItem(key);
+                if (value !== null) {
+                    payload[key] = value;
+                }
+            });
+            return payload;
+        }
+
+        function applySharedMiles(data) {
+            if (!data || typeof data !== 'object') {
+                return;
+            }
+            Object.keys(data).forEach(function(key) {
+                if (key.indexOf('actualMiles_') === 0 && data[key] != null && data[key] !== '') {
+                    safeSetItem(key, String(data[key]));
+                }
+            });
+        }
+
+        function loadSharedMiles() {
+            return fetch(SHARED_MILES_URL)
+                .then(function(res) {
+                    if (!res.ok) {
+                        throw new Error('shared load failed');
+                    }
+                    return res.json();
+                })
+                .then(function(data) {
+                    applySharedMiles(data);
+                    const startDateStr = document.getElementById('startDateSelect').value;
+                    const stored = safeGetItem('actualMiles_' + startDateStr);
+                    if (stored !== null) {
+                        document.getElementById('actualMiles').value = stored;
+                    }
+                    calculateAndUpdate();
+                    setSyncNote('Showing the latest miles for everyone');
+                })
+                .catch(function() {
+                    setSyncNote('');
+                });
+        }
+
+        function saveSharedMiles() {
+            return fetch(SHARED_MILES_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(collectMilesPayload())
+            }).then(function(res) {
+                if (!res.ok) {
+                    throw new Error('shared save failed');
+                }
+                setSyncNote('Saved for everyone');
+            }).catch(function() {
+                setSyncNote('Saved on this phone only');
+            });
+        }
+
+        function scheduleSharedSave() {
+            clearTimeout(sharedSaveTimer);
+            sharedSaveTimer = setTimeout(saveSharedMiles, 600);
+        }
 
         // Safe localStorage wrapper
         function safeGetItem(key) {
@@ -520,6 +602,7 @@
             const input = document.getElementById('actualMiles');
             if (input.value !== '' && prevDateStr !== dateStr) {
                 safeSetItem('actualMiles_' + prevDateStr, input.value);
+                scheduleSharedSave();
             }
             document.getElementById('startDateSelect').value = dateStr;
             document.getElementById('annualMilesSelect').value = milesStr;
@@ -540,6 +623,7 @@
             const startDateStr = document.getElementById('startDateSelect').value;
             if (!isNaN(value) && value >= 0) {
                 safeSetItem('actualMiles_' + startDateStr, String(value));
+                scheduleSharedSave();
             }
             // Always update display with current input
             calculateAndUpdate();
@@ -558,6 +642,7 @@
         if (initialActual !== null) {
             document.getElementById('actualMiles').value = initialActual;
         }
+        loadSharedMiles();
 
         // Auto-update on inputs
         document.getElementById('leaseBtnAiden').addEventListener('click', function() {
