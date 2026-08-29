@@ -245,18 +245,20 @@
 
         .lease-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .lease-btn {
-            padding: 14px 16px;
-            font-size: 1rem;
+            min-width: 0;
+            padding: 10px 4px 8px;
+            font-size: 0.75rem;
             font-weight: 600;
             font-family: inherit;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.02em;
             border: 2px solid var(--border);
             border-radius: var(--radius-sm);
             background: var(--card);
@@ -264,14 +266,15 @@
             cursor: pointer;
             transition: border-color 0.15s, background 0.15s, color 0.15s;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 4px;
         }
 
         .lease-btn-icon {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             margin: 0;
             object-fit: contain;
             flex-shrink: 0;
@@ -319,6 +322,10 @@
                 <button type="button" class="lease-btn" id="leaseBtnNicole" data-date="2025-04-23" data-miles="10000">
                     <img src="assets/infinti.svg" alt="" class="lease-btn-icon" aria-hidden="true">
                     Nicole
+                </button>
+                <button type="button" class="lease-btn" id="leaseBtnLucas" data-date="2026-07-28" data-miles="10000">
+                    <img src="assets/honda.svg" alt="" class="lease-btn-icon" aria-hidden="true">
+                    Lucas
                 </button>
             </div>
         </div>
@@ -422,8 +429,9 @@
                 startDateStr = storedStart;
                 document.getElementById('startDateSelect').value = storedStart;
             }
-            // Annual miles tied to lease: Nicole = 10k, Aiden = 15k
-            let annualMiles = startDateStr === '2025-04-23' ? 10000 : 15000;
+            // Annual miles from the selected lease button
+            const selectedLease = document.querySelector('.lease-btn[data-date="' + startDateStr + '"]');
+            let annualMiles = selectedLease ? parseInt(selectedLease.getAttribute('data-miles'), 10) : 15000;
             document.getElementById('annualMilesSelect').value = String(annualMiles);
             safeSetItem('annualMiles', String(annualMiles));
             // Update which lease button looks selected
@@ -540,6 +548,9 @@
         });
         document.getElementById('leaseBtnNicole').addEventListener('click', function() {
             selectLease('2025-04-23', '10000');
+        });
+        document.getElementById('leaseBtnLucas').addEventListener('click', function() {
+            selectLease('2026-07-28', '10000');
         });
         document.getElementById('actualMiles').addEventListener('input', updateActualMiles);
     </script>
