@@ -318,14 +318,6 @@
         .lease-choice-label {
             text-align: center;
         }
-
-        .sync-note {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-align: center;
-            margin: 8px 0 0;
-            min-height: 1.2em;
-        }
     </style>
 </head>
 <body>
@@ -363,7 +355,6 @@
                 <input type="text" id="annualMilesAllotted" readonly value="—" />
             </div>
         </div>
-        <p class="sync-note" id="syncNote"></p>
 
         <div class="key-stats">
             <div class="key-stat miles-diff" id="milesDiffStat">
@@ -419,11 +410,6 @@
         const SHARED_MILES_URL = 'https://flyerlab-mileage-tracker-default-rtdb.firebaseio.com/miles.json';
         let sharedSaveTimer = null;
 
-        function setSyncNote(text) {
-            const el = document.getElementById('syncNote');
-            if (el) el.textContent = text;
-        }
-
         function collectMilesPayload() {
             const payload = {};
             document.querySelectorAll('.lease-btn').forEach(function(btn) {
@@ -463,11 +449,8 @@
                         document.getElementById('actualMiles').value = stored;
                     }
                     calculateAndUpdate();
-                    setSyncNote('Showing the latest miles for everyone');
                 })
-                .catch(function() {
-                    setSyncNote('');
-                });
+                .catch(function() {});
         }
 
         function saveSharedMiles() {
@@ -479,10 +462,7 @@
                 if (!res.ok) {
                     throw new Error('shared save failed');
                 }
-                setSyncNote('Saved for everyone');
-            }).catch(function() {
-                setSyncNote('Saved on this phone only');
-            });
+            }).catch(function() {});
         }
 
         function scheduleSharedSave() {
