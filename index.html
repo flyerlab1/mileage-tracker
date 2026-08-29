@@ -49,6 +49,17 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* Home-screen web app: iOS often reports a 0 top inset, so force space under the island */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: 72px;
+            }
+        }
+
+        html.standalone body {
+            padding-top: 72px;
+        }
+
         .container {
             background: var(--card);
             padding: 24px;
@@ -390,6 +401,10 @@
     </div>
 
     <script>
+        if (window.navigator.standalone) {
+            document.documentElement.classList.add('standalone');
+        }
+
         const DAYS_IN_YEAR = 365; // Non-leap year assumption for simplicity
         const OVERAGE_RATE = 0.10; // $0.10 per mile
 
