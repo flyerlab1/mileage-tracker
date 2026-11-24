@@ -328,8 +328,8 @@
         <div class="input-section">
             <label class="lease-choice-label">Choose a lease</label>
             <div class="lease-buttons">
-                <button type="button" class="lease-btn selected" id="leaseBtnAiden" data-date="2025-08-09" data-miles="15000">
-                    <img src="assets/tesla.svg" alt="" class="lease-btn-icon" aria-hidden="true">
+                <button type="button" class="lease-btn selected" id="leaseBtnAiden" data-date="2026-11-24" data-miles="10000">
+                    <img src="assets/honda.svg" alt="" class="lease-btn-icon" aria-hidden="true">
                     Aiden
                 </button>
                 <button type="button" class="lease-btn" id="leaseBtnNicole" data-date="2025-04-23" data-miles="10000">
@@ -342,8 +342,8 @@
                 </button>
             </div>
         </div>
-        <input type="hidden" id="startDateSelect" value="2025-08-09">
-        <input type="hidden" id="annualMilesSelect" value="15000">
+        <input type="hidden" id="startDateSelect" value="2026-11-24">
+        <input type="hidden" id="annualMilesSelect" value="10000">
 
         <div class="miles-row">
             <div class="input-section">
@@ -504,7 +504,7 @@
             // Get selected start date (from hidden input, synced from lease button or storage)
             let startDateStr = document.getElementById('startDateSelect').value;
             const storedStart = safeGetItem('leaseStartDate');
-            if (storedStart !== null) {
+            if (storedStart !== null && document.querySelector('.lease-btn[data-date="' + storedStart + '"]')) {
                 startDateStr = storedStart;
                 document.getElementById('startDateSelect').value = storedStart;
             }
@@ -540,11 +540,7 @@
             if (input.value !== '') {
                 actualUsed = parseFloat(input.value) || 0;
             } else {
-                let storedActual = safeGetItem(storageKey);
-                if (storedActual === null && safeGetItem('actualMiles') !== null) {
-                    storedActual = safeGetItem('actualMiles');
-                    safeSetItem(storageKey, storedActual);
-                }
+                const storedActual = safeGetItem(storageKey);
                 if (storedActual !== null) {
                     actualUsed = parseFloat(storedActual) || 0;
                 }
@@ -614,11 +610,7 @@
 
         // Initial load: show stored miles for the selected lease
         const initialStartDate = document.getElementById('startDateSelect').value;
-        let initialActual = safeGetItem('actualMiles_' + initialStartDate);
-        if (initialActual === null && safeGetItem('actualMiles') !== null) {
-            initialActual = safeGetItem('actualMiles');
-            safeSetItem('actualMiles_' + initialStartDate, initialActual);
-        }
+        const initialActual = safeGetItem('actualMiles_' + initialStartDate);
         if (initialActual !== null) {
             document.getElementById('actualMiles').value = initialActual;
         }
@@ -626,7 +618,7 @@
 
         // Auto-update on inputs
         document.getElementById('leaseBtnAiden').addEventListener('click', function() {
-            selectLease('2025-08-09', '15000');
+            selectLease('2026-11-24', '10000');
         });
         document.getElementById('leaseBtnNicole').addEventListener('click', function() {
             selectLease('2025-04-23', '10000');
